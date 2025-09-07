@@ -79,3 +79,25 @@ button.coin-choice {
   margin: 5px;
   cursor: pointer;
 }
+
+.coin {
+  width: 60px;
+  height: 60px;
+  margin: 10px auto;
+  border-radius: 50%;
+  background: gold;
+  display: none;
+}
+
+.coin.flip {
+  display: block;
+  animation: flipCoin 2s ease-in-out;
+}
+
+@keyframes flipCoin {
+  0% { transform: rotateY(0); }
+  25% { transform: rotateY(180deg); }
+  50% { transform: rotateY(360deg); }
+  75% { transform: rotateY(540deg); }
+  100% { transform: rotateY(720deg); }
+}
