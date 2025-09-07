@@ -1,32 +1,14 @@
 :root {
-  --player1: #4a90e2;
-  --player2: #e94e77;
+  --player1: #ffb703;
+  --player2: #8ecae6;
 }
 
 body {
   font-family: Arial, sans-serif;
-  text-align: center;
-  background: #fafafa;
+  background: #f8f9fa;
   margin: 0;
   padding: 20px;
-}
-
-#name-section input {
-  margin: 5px;
-  padding: 8px;
-}
-
-button {
-  margin: 10px;
-  padding: 10px 20px;
-  cursor: pointer;
-}
-
-#coin-anim {
-  font-size: 3rem;
-  margin: 20px;
-  transition: transform 2s ease;
-  display: inline-block;
+  text-align: center;
 }
 
 #game-board {
@@ -35,80 +17,58 @@ button {
   gap: 12px;
   justify-content: center;
   margin-top: 20px;
-  max-width: 400px;
+  max-width: 360px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .tile {
+  background: #e0e0e0;
   width: 100px;
   height: 100px;
-  background: #ddd;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
+  font-size: 32px;
   border-radius: 10px;
-  font-size: 1.5rem;
-  transition: transform 0.4s;
+  transition: transform 0.4s ease;
 }
 
 .tile.flipped {
-  background: #666;
-  color: #fff;
-  transform: rotateY(180deg) scale(1.05);
+  color: white;
 }
 
 .tile.pop {
-  animation: pop 0.4s ease;
-}
-
-@keyframes pop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  transform: scale(1.2);
 }
 
 .initial {
   transform: scaleX(-1); /* mirror effect */
   font-weight: bold;
-  font-size: 1.5rem;
-  color: white;
+  font-size: 36px;
 }
 
-#modal {
-  display: none;
+.modal {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.7);
-  justify-content: center;
+  background: rgba(0,0,0,0.6);
+  display: none;
   align-items: center;
-  z-index: 100;
+  justify-content: center;
 }
 
-#modal-content {
-  background: #fff;
+.modal-content {
+  background: white;
   padding: 20px;
-  border-radius: 8px;
-  width: 80%;
-  max-width: 400px;
+  border-radius: 10px;
+  max-width: 90%;
+  width: 400px;
+  text-align: left;
 }
 
-#answer-input {
-  width: 90%;
-  height: 80px;
-  margin-top: 10px;
-}
-
-@media (max-width: 600px) {
-  #game-board {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    max-width: 300px;
-  }
-  .tile {
-    width: 80px;
-    height: 80px;
-    font-size: 1.2rem;
-  }
+#coin-anim {
+  font-size: 48px;
+  margin: 20px;
+  transition: transform 2s;
 }
