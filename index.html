@@ -8,9 +8,17 @@
 </head>
 <body>
   <h1>Tile Q&A Game</h1>
-  <div id="current-player">Current Player: 1</div>
-  
-  <div id="game-board">
+
+  <div id="coin-flip-section">
+    <p>Pick Heads or Tails to decide who starts:</p>
+    <button class="coin-choice" data-choice="Heads">Heads</button>
+    <button class="coin-choice" data-choice="Tails">Tails</button>
+    <p id="coin-result"></p>
+  </div>
+
+  <div id="current-player" style="display:none;">Current Player: 1</div>
+
+  <div id="game-board" style="display:none;">
     <!-- 4x4 grid -->
     <div class="tile" data-id="0"></div>
     <div class="tile" data-id="1"></div>
