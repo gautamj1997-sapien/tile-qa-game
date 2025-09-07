@@ -10,8 +10,11 @@ const coinButtons = document.querySelectorAll('.coin-choice');
 const coinResultDisplay = document.getElementById('coin-result');
 const coinSection = document.getElementById('coin-flip-section');
 const gameBoard = document.getElementById('game-board');
+const coin = document.getElementById('coin');
 
-const questions = [
+// ----- Questions -----
+const originalQuestions = [
+  // 28 original questions
   "Which Tamil comedy scene always makes you laugh? 🤣",
   "If you could only use three emojis for the rest of the week, what would they would be? 😎🥲🤣",
   "Would you rather have unlimited popcorn 🍿 or unlimited ice cream 🍦 forever? Biryani irundirda atha sollirpinga, theriyum adaa options le vekale🤣",
@@ -42,30 +45,55 @@ const questions = [
   "If the emotions you're feeling right now had a color, what color would yours be right now?"
 ];
 
-// Shuffle questions
+const backupQuestions = [
+  "What was your most mischievous act as a kid that you never got caught for? 😏",
+  "Which cartoon or show could you watch endlessly as a child?",
+  "Did you ever try to invent a “superpower” or a crazy gadget when you were little?",
+  "What’s the funniest excuse you gave to avoid homework? 📚😂",
+  "Which childhood snack do you secretly still miss?",
+  "Would you rather plan a surprise adventure for someone or just let it happen naturally? 🗺️",
+  "What’s your go-to move to make someone laugh instantly? 🤪",
+  "If you were a romantic comedy character, what would be your quirkiest trait?",
+  "Do you prefer long walks and talks or fun, spontaneous mini-adventures on a first hangout? 🚶‍♀️🎢",
+  "Which emoji best represents your flirting style? 😎🥰🤭"
+];
+
 function shuffle(array) {
   return array.sort(() => Math.random() - 0.5);
 }
-let shuffledQuestions = shuffle(questions.slice());
 
-// ----- Coin Flip Logic -----
+let shuffledOriginal = shuffle(originalQuestions.slice());
+let shuffledBackup = shuffle(backupQuestions.slice());
+
+function getNextQuestion(){
+  if(shuffledOriginal.length > 0) return shuffledOriginal.shift();
+  if(shuffledBackup.length > 0) return shuffledBackup.shift();
+  return null;
+}
+
+// ----- Coin Flip -----
 coinButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     const choice = btn.dataset.choice;
-    const coinResult = Math.random() < 0.5 ? "Heads" : "Tails";
-    coinResultDisplay.innerText = `Coin shows: ${coinResult}`;
-    currentPlayer = (choice === coinResult) ? 1 : 2;
+    coin.classList.add('flip');
 
     setTimeout(() => {
-      coinSection.style.display = 'none';
-      gameBoard.style.display = 'grid';
-      playerDisplay.style.display = 'block';
-      playerDisplay.innerText = `Current Player: ${currentPlayer}`;
-    }, 1000);
+      coin.classList.remove('flip');
+      const coinResult = Math.random() < 0.5 ? "Heads" : "Tails";
+      coinResultDisplay.innerText = `Coin shows: ${coinResult}`;
+      currentPlayer = (choice === coinResult) ? 1 : 2;
+
+      setTimeout(() => {
+        coinSection.style.display = 'none';
+        gameBoard.style.display = 'grid';
+        playerDisplay.style.display = 'block';
+        playerDisplay.innerText = `Current Player: ${currentPlayer}`;
+      }, 500);
+    }, 2000); // 2 seconds flip
   });
 });
 
-// ----- Tile Flip Logic -----
+// ----- Tile Flip -----
 tiles.forEach(tile => {
   tile.addEventListener('click', () => {
     if(tile.classList.contains('flipped')) return;
@@ -73,16 +101,19 @@ tiles.forEach(tile => {
     tile.style.setProperty('--player-color', currentPlayer === 1 ? '#add8e6' : '#ffb6c1');
     tile.classList.add('flipped');
 
-    const question = shuffledQuestions.shift();
+    const question = getNextQuestion();
     if(question){
       questionText.innerText = `Player ${currentPlayer}: ${question}`;
       modal.style.display = 'block';
       tile.dataset.answered = "true";
+    } else {
+      questionText.innerText = "No more questions left!";
+      modal.style.display = 'block';
     }
   });
 });
 
-// ----- Submit Answer Logic -----
+// ----- Submit Answer -----
 submitBtn.addEventListener('click', () => {
   modal.style.display = 'none';
   answerInput.value = '';
