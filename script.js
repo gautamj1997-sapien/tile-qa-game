@@ -1,31 +1,35 @@
-let currentPlayer = 1;
-let playerNames = ["Player 1", "Player 2"];
-playerNames[0] = prompt("Enter name for Player 1:", "Player 1") || "Player 1";
-playerNames[1] = prompt("Enter name for Player 2:", "Player 2") || "Player 2";
-
-const playerDisplay = document.getElementById('current-player');
-const tiles = document.querySelectorAll('.tile');
-const modal = document.getElementById('question-modal');
+// --- Elements ---
+const playerDisplay = document.getElementById('player-display');
+const gameBoard = document.getElementById('game-board');
+const modal = document.getElementById('modal');
 const questionText = document.getElementById('question-text');
 const answerInput = document.getElementById('answer-input');
-const submitBtn = document.getElementById('submit-answer');
-
-const coinButtons = document.querySelectorAll('.coin-choice');
+const submitBtn = document.getElementById('submit-btn');
+const coinSection = document.getElementById('coin-section');
+const coinButtons = document.querySelectorAll('.coin-btn');
 const coinResultDisplay = document.getElementById('coin-result');
-const coinSection = document.getElementById('coin-flip-section');
-const gameBoard = document.getElementById('game-board');
-const coin = document.getElementById('coin');
+const spinModal = document.getElementById('spin-modal');
+const spinText = document.getElementById('spin-text');
+const spinAnimation = document.getElementById('spin-animation');
+const continueBtn = document.getElementById('continue-game');
+const startBtn = document.getElementById('start-game');
+const player1Input = document.getElementById('player1-name');
+const player2Input = document.getElementById('player2-name');
 
-// ----- Questions -----
+// --- Players ---
+let playerNames = ["Player 1","Player 2"];
+let currentPlayer = 0;
+
+// --- Questions ---
 const originalQuestions = [
   "Which Tamil comedy scene always makes you laugh? 🤣",
   "If you could only use three emojis for the rest of the week, what would they would be? 😎🥲🤣",
   "Would you rather have unlimited popcorn 🍿 or unlimited ice cream 🍦 forever? Biryani irundirda atha sollirpinga, theriyum adaa options le vekale🤣",
   "What's the silliest thing you're scared about? Yenaku... ipo nadakrdella oru dream, sudden ah oru naal reality ku endrichutu, maths exam ku chemistry prepare panni vandirpeno🤣",
   "If you had a pet parrot 🦜, what’s the funniest thing you’d teach it to say?",
-  "Ungaluku Kamal Hassan oda fav movie and dialoge enna😉",
+  "Ungaluku Kamal hassan oda fav movie and dialoge enna😉",
   "What’s the weirdest food combo you actually enjoy? Rasam rice le curds antu erkanave solirkinga, try panle🤣.... apdiye innonu solinga",
-  "What’s the funniest nickname you’ve ever had, school le ila naa college le😋?",
+  "What’s the funniest nickname you’ve ever had, school le ila naa college le😋 ?",
   "What song do you ALWAYS sing when no one’s listening? Pudicha song antu vechikla, something you'd sing or go back to listening when you're bored🎤",
   "Would you rather pick midnight bike/car ride 🚲 or a beach walk 🌊? I love both, suprha irukum. You can only choose one",
   "If you could swap lives with a Tamil movie character for one day, who would it be and why? Ideyu solirkinga, innoru thadave sollunga, why is more important",
@@ -38,13 +42,13 @@ const originalQuestions = [
   "What’s something small that gives you big happiness? Chinna chinna vishyangal tha but makes you happy / just smile😍",
   "Who in your life has inspired you the most, and why? Idu yenaku theriyum nenkre, let's see if you'll surprise😁",
   "If you could go back in time and meet your younger self, avangluku enna solla virbvinga?",
-  "Do you prefer to express feelings through words 🎤, actions 🤝, or silence 🌙? Idaa rmba suspence ah iruku",
+  "Do you prefer to express feelings through words 🎤, actions 🤝, or silence 🌙?",
   "If your love story was a Tamil movie, what would the title be? 🎬💕",
   "What’s the sweetest thing you think I've observed or told you that made you feel special, even a little bit🫣?",
-  "If I was a character in your life’s movie, what role would I play? 😉 Now this could be one of the questions I don't think I'm ready for the answer ana solunga plsss 🙏",
+  "If I was a character in your life’s movie, what role would I play? 😉",
   "Enna nenakringa, do you think soulmates are destined, or do we create them?",
-  "What’s one thing you dream of doing with someone special someday? 🌌, ungloda special moment with your person",
-  "What kind of moment makes your heart race the most? 💣 Mostly with excitement, Yenaku, when I'm try or plan something to make someone feel good, avangluku epdi urruku antu paakradu rmba exciting ah irrukum",
+  "What’s one thing you dream of doing with someone special someday? 🌌",
+  "What kind of moment makes your heart race the most? 💣",
   "If the emotions you're feeling right now had a color, what color would yours be right now?"
 ];
 
@@ -61,10 +65,7 @@ const backupQuestions = [
   "Which emoji best represents your flirting style? 😎🥰🤭"
 ];
 
-function shuffle(array) {
-  return array.sort(() => Math.random() - 0.5);
-}
-
+function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
 let shuffledOriginal = shuffle(originalQuestions.slice());
 let shuffledBackup = shuffle(backupQuestions.slice());
 
@@ -74,37 +75,77 @@ function getNextQuestion(){
   return null;
 }
 
-// ----- Coin Flip -----
+// --- Start Game ---
+startBtn.addEventListener('click', () => {
+  if(player1Input.value) playerNames[0] = player1Input.value;
+  if(player2Input.value) playerNames[1] = player2Input.value;
+
+  document.getElementById('name-section').style.display = 'none';
+  coinSection.style.display = 'block';
+});
+
+// --- Coin Toss ---
 coinButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     const choice = btn.dataset.choice;
-    coin.classList.add('flip');
+    const coinResult = Math.random() < 0.5 ? "Heads" : "Tails";
+    coinResultDisplay.innerText = `Coin shows: ${coinResult}`;
+    currentPlayer = (choice === coinResult) ? 0 : 1;
+
+    playerDisplay.style.display = 'block';
+    playerDisplay.innerText = `${playerNames[currentPlayer]} has won the toss!`;
 
     setTimeout(() => {
-      coin.classList.remove('flip');
-      const coinResult = Math.random() < 0.5 ? "Heads" : "Tails";
-      coinResultDisplay.innerText = `Coin shows: ${coinResult}`;
-      currentPlayer = (choice === coinResult) ? 0 : 1;
-
-      // Display winner text
-      playerDisplay.style.display = 'block';
-      playerDisplay.innerText = `${playerNames[currentPlayer]} has won the toss!`;
-
-      setTimeout(() => {
-        coinSection.style.display = 'none';
-        gameBoard.style.display = 'grid';
-        playerDisplay.innerText = `Current Player: ${playerNames[currentPlayer]}`;
-      }, 2000);
-
+      coinSection.style.display = 'none';
+      gameBoard.style.display = 'grid';
+      playerDisplay.innerText = `Current Player: ${playerNames[currentPlayer]}`;
+      createTiles(16); // Example: 16 tiles
     }, 2000);
   });
 });
 
-// ----- Tile Flip -----
+// --- Create Tiles ---
+let tiles = [];
+function createTiles(num){
+  for(let i=0;i<num;i++){
+    let tile = document.createElement('div');
+    tile.classList.add('tile');
+    gameBoard.appendChild(tile);
+    tiles.push(tile);
+  }
+}
+
+// --- Game Logic ---
+let turnCounter = 0;
+
 tiles.forEach(tile => {
   tile.addEventListener('click', () => {
     if(tile.classList.contains('flipped')) return;
 
+    turnCounter++;
+
+    // --- Truth or Dare Spin every 4 turns ---
+    if(turnCounter % 4 === 0){
+      spinModal.style.display = 'block';
+      spinText.innerText = `${playerNames[currentPlayer]}, it's your turn to spin for Truth or Dare! 🎡`;
+
+      spinAnimation.style.transform = 'rotate(0deg)';
+      setTimeout(() => {
+        let randomDeg = 1080 + Math.random()*360;
+        spinAnimation.style.transition = 'transform 3s ease-in-out';
+        spinAnimation.style.transform = `rotate(${randomDeg}deg)`;
+      }, 100);
+
+      setTimeout(() => {
+        const outcome = Math.random() < 0.5 ? "Truth" : "Dare";
+        spinText.innerText = `${playerNames[currentPlayer]}, your spin result: ${outcome}!\nPlayer 2 can now ask a question or give a dare.`;
+        continueBtn.style.display = 'inline-block';
+      }, 3100);
+
+      return;
+    }
+
+    // --- Normal Tile Logic ---
     tile.style.setProperty('--player-color', currentPlayer === 0 ? '#add8e6' : '#ffb6c1');
     tile.classList.add('flipped');
 
@@ -113,27 +154,43 @@ tiles.forEach(tile => {
       questionText.innerText = `${playerNames[currentPlayer]}: ${question}`;
       modal.style.display = 'block';
       tile.dataset.answered = "true";
-      tile.innerText = playerNames[currentPlayer][0]; // show first initial
-    } else {
-      questionText.innerText = "No more questions left!";
-      modal.style.display = 'block';
+      tile.innerHTML = `<span>${playerNames[currentPlayer][0]}</span>`;
     }
   });
 });
 
-// ----- Submit Answer -----
+// --- Submit Answer ---
 submitBtn.addEventListener('click', () => {
   modal.style.display = 'none';
   answerInput.value = '';
 
-  // Trigger confetti
-  confetti({
-    particleCount: 100,
-    spread: 70,
-    origin: { y: 0.6 }
-  });
+  confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 
-  // Switch player
   currentPlayer = currentPlayer === 0 ? 1 : 0;
   playerDisplay.innerText = `Current Player: ${playerNames[currentPlayer]}`;
 });
+
+// --- Continue after Spin ---
+continueBtn.addEventListener('click', () => {
+  spinModal.style.display = 'none';
+  continueBtn.style.display = 'none';
+  currentPlayer = currentPlayer === 0 ? 1 : 0;
+  playerDisplay.innerText = `Current Player: ${playerNames[currentPlayer]}`;
+});
+
+// --- End Game Cheeky Message ---
+function showEndGameMessage() {
+  playerDisplay.innerText = "You are getting dangerously close! ❤️✨";
+  playerDisplay.style.transition = "transform 0.5s";
+  playerDisplay.style.transform = "scale(1.3)";
+  setTimeout(() => { playerDisplay.style.transform = "scale(1)"; }, 500);
+
+  let duration = 5000;
+  let end = Date.now() + duration;
+
+  (function frame() {
+    confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: Math.random(), y: Math.random()*0.6 } });
+    confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: Math.random(), y: Math.random()*0.6 } });
+    if(Date.now() < end) requestAnimationFrame(frame);
+  }());
+}
