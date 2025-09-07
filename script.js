@@ -1,26 +1,34 @@
-// --- Elements ---
+/* Full game script with:
+ - all 27 original questions (user provided),
+ - 10 backup questions,
+ - no repeats within a session,
+ - previous-session exclusion via localStorage (key: lastSessionQuestions),
+ - coin flip animation (2s) + 2s reveal,
+ - mirrored initials, pop+flip animation,
+ - confetti after answers, final fireworks,
+ - player names input and addressing.
+*/
+
+///// Elements /////
+const startBtn = document.getElementById('start-game');
+const player1Input = document.getElementById('player1-name');
+const player2Input = document.getElementById('player2-name');
+const coinSection = document.getElementById('coin-section');
+const coinBtns = document.querySelectorAll('.coin-btn');
+const coinAnim = document.getElementById('coin-anim');
+const coinResult = document.getElementById('coin-result');
 const playerDisplay = document.getElementById('player-display');
 const gameBoard = document.getElementById('game-board');
 const modal = document.getElementById('modal');
 const questionText = document.getElementById('question-text');
 const answerInput = document.getElementById('answer-input');
-const submitBtn = document.getElementById('submit-btn');
-const coinSection = document.getElementById('coin-section');
-const coinButtons = document.querySelectorAll('.coin-btn');
-const coinResultDisplay = document.getElementById('coin-result');
-const spinModal = document.getElementById('spin-modal');
-const spinText = document.getElementById('spin-text');
-const spinAnimation = document.getElementById('spin-animation');
-const continueBtn = document.getElementById('continue-game');
-const startBtn = document.getElementById('start-game');
-const player1Input = document.getElementById('player1-name');
-const player2Input = document.getElementById('player2-name');
+const submitAnswerBtn = document.getElementById('submit-answer');
 
-// --- Players ---
-let playerNames = ["Player 1","Player 2"];
-let currentPlayer = 0;
+///// Players /////
+let playerNames = ['Player 1','Player 2'];
+let currentPlayer = 0; // 0 or 1
 
-// --- Questions ---
+///// Questions (original 27 exactly as requested) /////
 const originalQuestions = [
   "Which Tamil comedy scene always makes you laugh? 🤣",
   "If you could only use three emojis for the rest of the week, what would they would be? 😎🥲🤣",
@@ -42,16 +50,17 @@ const originalQuestions = [
   "What’s something small that gives you big happiness? Chinna chinna vishyangal tha but makes you happy / just smile😍",
   "Who in your life has inspired you the most, and why? Idu yenaku theriyum nenkre, let's see if you'll surprise😁",
   "If you could go back in time and meet your younger self, avangluku enna solla virbvinga?",
-  "Do you prefer to express feelings through words 🎤, actions 🤝, or silence 🌙?",
+  "Do you prefer to express feelings through words 🎤, actions 🤝, or silence 🌙? Idaa rmba suspence ah iruku",
   "If your love story was a Tamil movie, what would the title be? 🎬💕",
   "What’s the sweetest thing you think I've observed or told you that made you feel special, even a little bit🫣?",
-  "If I was a character in your life’s movie, what role would I play? 😉",
+  "If I was a character in your life’s movie, what role would I play? 😉 Now this could be one of the questions I don't think I'm ready for the answer ana solunga plsss 🙏",
   "Enna nenakringa, do you think soulmates are destined, or do we create them?",
-  "What’s one thing you dream of doing with someone special someday? 🌌",
-  "What kind of moment makes your heart race the most? 💣",
+  "What’s one thing you dream of doing with someone special someday? 🌌, ungloda special moment with your person",
+  "What kind of moment makes your heart race the most? 💣Mostly with excitement, Yenaku, when I'm try or plan something to make someone feel good, avangluku epdi urruku antu paakradu rmba exciting ah irrukum",
   "If the emotions you're feeling right now had a color, what color would yours be right now?"
 ];
 
+///// 10 backup questions (childhood & platonic top5 each) /////
 const backupQuestions = [
   "What was your most mischievous act as a kid that you never got caught for? 😏",
   "Which cartoon or show could you watch endlessly as a child?",
@@ -65,133 +74,222 @@ const backupQuestions = [
   "Which emoji best represents your flirting style? 😎🥰🤭"
 ];
 
-function shuffle(array){ return array.sort(() => Math.random() - 0.5); }
-let shuffledOriginal = shuffle(originalQuestions.slice());
-let shuffledBackup = shuffle(backupQuestions.slice());
-function getNextQuestion(){
-  if(shuffledOriginal.length > 0) return shuffledOriginal.shift();
-  if(shuffledBackup.length > 0) return shuffledBackup.shift();
-  return null;
+///// Helpers: shuffle, localStorage last-session filtering /////
+function shuffle(arr){ return arr.sort(()=>Math.random()-0.5); }
+
+// read last-session used questions (array of question strings)
+const STORAGE_KEY = 'lastSessionQuestions_v1';
+function readLastSessionQuestions(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return [];
+    return JSON.parse(raw);
+  }catch(e){ return []; }
 }
 
-// --- Start Game ---
-startBtn.addEventListener('click', () => {
-  if(player1Input.value) playerNames[0] = player1Input.value;
-  if(player2Input.value) playerNames[1] = player2Input.value;
+function saveThisSessionQuestions(list){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+  catch(e){ /* ignore */ }
+}
 
+///// Build pools, excluding last-session questions from original pool /////
+const lastSession = readLastSessionQuestions(); // array
+// filter originals to exclude any used last session
+const availableOriginals = originalQuestions.filter(q => !lastSession.includes(q));
+let shuffledOriginal = shuffle(availableOriginals.slice());
+let shuffledBackup = shuffle(backupQuestions.slice());
+
+// track used questions this session (for saving at end)
+let usedThisSession = [];
+
+///// Game state /////
+let tiles = [];
+let turnCount = 0; // increments after each submitted answer
+
+///// Create tile grid function /////
+function createTiles(count=16){
+  gameBoard.innerHTML = '';
+  tiles = [];
+  for(let i=0;i<count;i++){
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    tile.dataset.index = i;
+    // click handler assigned later (after creating)
+    tiles.push(tile);
+    gameBoard.appendChild(tile);
+  }
+  // assign click handlers
+  tiles.forEach(tile => tile.addEventListener('click', onTileClick));
+}
+
+///// Get next question obeying rules (originals first, then backups) /////
+function getNextQuestion(){
+  if(shuffledOriginal.length > 0){
+    const q = shuffledOriginal.shift();
+    usedThisSession.push(q);
+    return q;
+  }
+  if(shuffledBackup.length > 0){
+    const q = shuffledBackup.shift();
+    usedThisSession.push(q);
+    return q;
+  }
+  return null; // no questions left
+}
+
+///// UI helpers /////
+function showModalWithQuestion(text){
+  questionText.innerText = text;
+  answerInput.value = '';
+  modal.style.display = 'flex';
+  modal.setAttribute('aria-hidden','false');
+  answerInput.focus();
+}
+function hideModal(){
+  modal.style.display = 'none';
+  modal.setAttribute('aria-hidden','true');
+}
+
+///// Confetti helper for single burst /////
+function confettiBurst(){
+  confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }});
+}
+
+///// Fireworks (end game) - repeated bursts for a duration /////
+function fireworks(duration = 4500){
+  const end = Date.now() + duration;
+  (function frame(){
+    confetti({
+      particleCount: 7,
+      angle: 60,
+      spread: 60,
+      origin: { x: Math.random(), y: Math.random() * 0.6 }
+    });
+    confetti({
+      particleCount: 7,
+      angle: 120,
+      spread: 60,
+      origin: { x: Math.random(), y: Math.random() * 0.6 }
+    });
+    if(Date.now() < end) requestAnimationFrame(frame);
+  })();
+}
+
+///// End game cheeky message and fireworks /////
+function showEndGame(){
+  playerDisplay.innerText = `You are getting dangerously close! ❤️✨`;
+  playerDisplay.style.transform = 'scale(1.18)';
+  setTimeout(()=> playerDisplay.style.transform = 'scale(1)', 450);
+  fireworks(5000);
+
+  // Save usedThisSession to localStorage for next session exclusion
+  saveThisSessionQuestions(usedThisSession.slice());
+}
+
+///// Tile click handler (flip + pop + show question) /////
+function onTileClick(e){
+  const tile = e.currentTarget;
+  if(tile.classList.contains('flipped')) return;
+
+  // flip + pop
+  tile.classList.add('flipped','pop');
+  // set tile color by player
+  tile.style.background = (currentPlayer === 0) ? 'var(--player1)' : 'var(--player2)';
+  // mirrored initial span
+  const initial = (playerNames[currentPlayer] && playerNames[currentPlayer].trim().length>0)
+                  ? playerNames[currentPlayer].trim()[0].toUpperCase()
+                  : (currentPlayer===0 ? 'P' : 'Q');
+  tile.innerHTML = `<span class="initial">${initial}</span>`;
+  // remove pop class after animation
+  setTimeout(()=> tile.classList.remove('pop'), 450);
+
+  // get question and show modal
+  const q = getNextQuestion();
+  if(q){
+    showModalWithQuestion(`${playerNames[currentPlayer]}: ${q}`);
+  } else {
+    showModalWithQuestion('No more questions left!');
+  }
+}
+
+///// Submit answer handler (confetti, next turn) /////
+submitAnswerBtn.addEventListener('click', ()=>{
+  hideModal();
+  confettiBurst();
+
+  // increment turn and switch player
+  turnCount++;
+  currentPlayer = (currentPlayer === 0) ? 1 : 0;
+  playerDisplay.style.display = 'block';
+  playerDisplay.innerText = `Current Player: ${playerNames[currentPlayer]}`;
+
+  // check end of all pools
+  if(shuffledOriginal.length === 0 && shuffledBackup.length === 0){
+    // little delay before final fireworks
+    setTimeout(showEndGame, 500);
+  }
+});
+
+///// Coin toss flow (2s flip + 2s reveal) /////
+function performCoinFlip(choice){
+  // show coin animation (2s) then reveal coin side and winner for 2s
+  coinAnim.style.opacity = '1';
+  coinAnim.style.transform = 'rotate(0deg)';
+
+  coinResult.innerText = 'Flipping the coin...';
+  // animate coin rotate for 2s (CSS transition done inline)
+  setTimeout(()=>{
+    // rotate to some large angle for visual (done by setting transform)
+    const rand = 720 + Math.floor(Math.random()*360);
+    coinAnim.style.transform = `rotate(${rand}deg)`;
+
+    // after 2s show result and winner
+    setTimeout(()=>{
+      const coinResultSide = (Math.random() < 0.5) ? 'Heads' : 'Tails';
+      const winnerIndex = (choice === coinResultSide) ? 0 : 1;
+      currentPlayer = winnerIndex;
+
+      coinResult.innerText = `Coin shows: ${coinResultSide}\n${playerNames[currentPlayer]} won the toss!`;
+      // keep reveal for 2 seconds, then hide coin section & show board
+      setTimeout(()=>{
+        coinSection.style.display = 'none';
+        // show board and start
+        gameBoard.style.display = 'grid';
+        playerDisplay.style.display = 'block';
+        playerDisplay.innerText = `Current Player: ${playerNames[currentPlayer]}`;
+        createTiles(16);
+      }, 2000);
+
+    }, 2000);
+  }, 100);
+}
+
+///// Start button: grab names and show coin toss /////
+startBtn.addEventListener('click', ()=>{
+  const n1 = player1Input.value.trim();
+  const n2 = player2Input.value.trim();
+  if(n1) playerNames[0] = n1;
+  if(n2) playerNames[1] = n2;
+
+  // hide name section, show coin section
   document.getElementById('name-section').style.display = 'none';
   coinSection.style.display = 'block';
 });
 
-// --- Coin Toss ---
-coinButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
+///// coin buttons handlers /////
+coinBtns.forEach(btn => {
+  btn.addEventListener('click', ()=>{
     const choice = btn.dataset.choice;
-    const coinResult = Math.random() < 0.5 ? "Heads" : "Tails";
-    coinResultDisplay.innerText = `Coin shows: ${coinResult}`;
-    currentPlayer = (choice === coinResult) ? 0 : 1;
-
-    playerDisplay.style.display = 'block';
-    playerDisplay.innerText = `${playerNames[currentPlayer]} has won the toss!`;
-
-    setTimeout(() => {
-      coinSection.style.display = 'none';
-      gameBoard.style.display = 'grid';
-      playerDisplay.innerText = `Current Player: ${playerNames[currentPlayer]}`;
-      createTiles(16);
-    }, 2000);
+    performCoinFlip(choice);
   });
 });
 
-// --- Create Tiles ---
-let tiles = [];
-function createTiles(num){
-  for(let i=0;i<num;i++){
-    let tile = document.createElement('div');
-    tile.classList.add('tile');
-    gameBoard.appendChild(tile);
-    tiles.push(tile);
+///// On page load: show last-session info (optional) /////
+(function initOnLoad(){
+  // If lastSession exists, inform players (optional small hint)
+  const last = readLastSessionQuestions();
+  if(last && last.length>0){
+    // small console note or UI hint; keep subtle:
+    console.info(`Note: ${last.length} questions were used last session and will be excluded from original pool this session.`);
   }
-}
-
-// --- Game Logic ---
-let turnCounter = 0;
-
-tiles.forEach(tile => {
-  tile.addEventListener('click', () => {
-    if(tile.classList.contains('flipped')) return;
-
-    // Truth or Dare spin every 4 turns
-    if(turnCounter !== 0 && turnCounter % 4 === 0){
-      spinModal.style.display = 'block';
-      spinText.innerText = `${playerNames[currentPlayer]}, it's your turn to spin for Truth or Dare! 🎡`;
-      spinAnimation.style.transform = 'rotate(0deg)';
-
-      setTimeout(() => {
-        let randomDeg = 1080 + Math.random()*360;
-        spinAnimation.style.transition = 'transform 3s ease-in-out';
-        spinAnimation.style.transform = `rotate(${randomDeg}deg)`;
-      }, 100);
-
-      setTimeout(() => {
-        const outcome = Math.random() < 0.5 ? "Truth" : "Dare";
-        spinText.innerText = `${playerNames[currentPlayer]}, your spin result: ${outcome}!\nPlayer 2 can now ask a question or give a dare.`;
-        continueBtn.style.display = 'inline-block';
-      }, 3100);
-
-      return; // Exit click handler; tile won't flip this turn
-    }
-
-    // Normal tile flip with bounce
-    tile.classList.add('flipped', 'animate');
-    tile.style.background = currentPlayer === 0 ? '#add8e6' : '#ffb6c1';
-    tile.innerHTML = `<span>${playerNames[currentPlayer][0]}</span>`;
-    setTimeout(() => tile.classList.remove('animate'), 500);
-
-    const question = getNextQuestion();
-    if(question){
-      questionText.innerText = `${playerNames[currentPlayer]}: ${question}`;
-      modal.style.display = 'block';
-    }
-  });
-});
-
-// --- Submit Answer ---
-submitBtn.addEventListener('click', () => {
-  modal.style.display = 'none';
-  answerInput.value = '';
-
-  confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-
-  turnCounter++;
-  currentPlayer = currentPlayer === 0 ? 1 : 0;
-  playerDisplay.innerText = `Current Player: ${playerNames[currentPlayer]}`;
-
-  if(shuffledOriginal.length === 0 && shuffledBackup.length === 0){
-    setTimeout(showEndGameMessage, 500);
-  }
-});
-
-// --- Continue after Spin ---
-continueBtn.addEventListener('click', () => {
-  spinModal.style.display = 'none';
-  continueBtn.style.display = 'none';
-  currentPlayer = currentPlayer === 0 ? 1 : 0;
-  playerDisplay.innerText = `Current Player: ${playerNames[currentPlayer]}`;
-});
-
-// --- End Game Cheeky Message ---
-function showEndGameMessage() {
-  playerDisplay.innerText = "You are getting dangerously close! ✨";
-  playerDisplay.style.transition = "transform 0.5s";
-  playerDisplay.style.transform = "scale(1.3)";
-  setTimeout(() => { playerDisplay.style.transform = "scale(1)"; }, 500);
-
-  let duration = 5000;
-  let end = Date.now() + duration;
-  (function frame() {
-    confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: Math.random(), y: Math.random()-0.2 } });
-    confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: Math.random(), y: Math.random()-0.2 } });
-    if(Date.now() < end) requestAnimationFrame(frame);
-  }());
-}
+})();
