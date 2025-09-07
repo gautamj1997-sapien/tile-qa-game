@@ -15,48 +15,63 @@ const submitAnswerBtn = document.getElementById('submit-answer');
 
 ///// Players /////
 let playerNames = ['Player 1','Player 2'];
-let currentPlayer = 0; // 0 or 1
+let currentPlayer = 0;
 
-///// Questions (shortened for demo – replace with full set) /////
+///// Questions /////
 const originalQuestions = [
   "Which Tamil comedy scene always makes you laugh? 🤣",
-  "If you could only use three emojis for the rest of the week, what would they be? 😎🥲🤣",
-  "Would you rather have unlimited popcorn 🍿 or unlimited ice cream 🍦 forever?",
-  "What’s the silliest thing you’re scared about?",
+  "If you could only use three emojis for the rest of the week, what would they would be? 😎🥲🤣",
+  "Would you rather have unlimited popcorn 🍿 or unlimited ice cream 🍦 forever? Biryani irundirda atha sollirpinga, theriyum adaa options le vekale🤣",
+  "What's the silliest thing you're scared about? Yenaku... ipo nadakrdella oru dream, sudden ah oru naal reality ku endrichutu, maths exam ku chemistry prepare panni vandirpeno🤣",
   "If you had a pet parrot 🦜, what’s the funniest thing you’d teach it to say?",
   "Ungaluku Kamal hassan oda fav movie and dialoge enna😉",
-  "What’s the weirdest food combo you actually enjoy?",
-  "What’s the funniest nickname you’ve ever had?",
-  "What song do you ALWAYS sing when no one’s listening? 🎤"
+  "What’s the weirdest food combo you actually enjoy? Rasam rice le curds antu erkanave solirkinga, try panle🤣.... apdiye innonu solinga",
+  "What’s the funniest nickname you’ve ever had, school le ila naa college le😋 ?",
+  "What song do you ALWAYS sing when no one’s listening? Pudicha song antu vechikla, something you'd sing or go back to listening when you're bored🎤",
+  "Would you rather pick midnight bike/car ride 🚲 or a beach walk 🌊? I love both, suprha irukum. You can only choose one",
+  "If you could swap lives with a Tamil movie character for one day, who would it be and why? Ideyu solirkinga, innoru thadave sollunga, why is more important",
+  "What’s the most random talent or trick you have? 🤹 Inda train station le announcements ila phone le engaged/not reachable/not answering messages la nallu theriyum😅",
+  "What’s the most adventurous thing you’ve done? River rafting tha🤧, yen katha anniki mudinchi antu nenache",
+  "If you were in Bigg Boss house, how long would you survive?",
+  "What’s one childhood memory that shaped who you are today? Neenga rmba feel panra oru moment, could happy or sad",
+  "Neenga past ku poy oru naal marbdyu re-live panra vaypu kadacha, which day would it be?",
+  "What instantly makes you feel calm and safe? 🌸 specifically that i need to know",
+  "What’s something small that gives you big happiness? Chinna chinna vishyangal tha but makes you happy / just smile😍",
+  "Who in your life has inspired you the most, and why? Idu yenaku theriyum nenkre, let's see if you'll surprise😁",
+  "If you could go back in time and meet your younger self, avangluku enna solla virbvinga?",
+  "Do you prefer to express feelings through words 🎤, actions 🤝, or silence 🌙? Idaa rmba suspence ah iruku",
+  "If your love story was a Tamil movie, what would the title be? 🎬💕",
+  "What’s the sweetest thing you think I've observed or told you that made you feel special, even a little bit🫣?",
+  "If I was a character in your life’s movie, what role would I play? 😉 Now this could be one of the questions I don't think I'm ready for the answer ana solunga plsss 🙏",
+  "Enna nenakringa, do you think soulmates are destined, or do we create them?",
+  "What’s one thing you dream of doing with someone special someday? 🌌, ungloda special moment with your person",
+  "What kind of moment makes your heart race the most? 💣Mostly with excitement, Yenaku, when I'm try or plan something to make someone feel good, avangluku epdi urruku antu paakradu rmba exciting ah irrukum",
+  "If the emotions you're feeling right now had a color, what color would yours be right now?"
 ];
 
 const backupQuestions = [
-  "What was your most mischievous act as a kid? 😏",
-  "Which cartoon did you watch endlessly?",
-  "Funniest excuse to avoid homework? 📚😂",
-  "Which childhood snack do you still miss?",
-  "Would you rather plan surprises or go with the flow?",
-  "What’s your go-to move to make someone laugh?",
-  "If you were in a rom-com, what would be your quirkiest trait?",
-  "Long walks & talks or spontaneous mini-adventures? 🚶‍♀️🎢",
-  "Which emoji best represents your flirting style? 😎🥰🤭",
-  "What silly dream did you believe as a kid?"
+  "What was your most mischievous act as a kid that you never got caught for? 😏",
+  "Which cartoon or show could you watch endlessly as a child?",
+  "Did you ever try to invent a “superpower” or a crazy gadget when you were little?",
+  "What’s the funniest excuse you gave to avoid homework? 📚😂",
+  "Which childhood snack do you secretly still miss?",
+  "Would you rather plan a surprise adventure for someone or just let it happen naturally? 🗺️",
+  "What’s your go-to move to make someone laugh instantly? 🤪",
+  "If you were a romantic comedy character, what would be your quirkiest trait?",
+  "Do you prefer long walks and talks or fun, spontaneous mini-adventures on a first hangout? 🚶‍♀️🎢",
+  "Which emoji best represents your flirting style? 😎🥰🤭"
 ];
 
+///// Helpers /////
 function shuffle(arr){ return arr.sort(()=>Math.random()-0.5); }
 
-///// Session storage to avoid repeats across sessions /////
 const STORAGE_KEY = 'lastSessionQuestions_v1';
 function readLastSessionQuestions(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return [];
-    return JSON.parse(raw);
-  }catch(e){ return []; }
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch(e){ return []; }
 }
 function saveThisSessionQuestions(list){
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
-  catch(e){ /* ignore */ }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
 }
 
 const lastSession = readLastSessionQuestions();
@@ -65,12 +80,12 @@ let shuffledOriginal = shuffle(availableOriginals.slice());
 let shuffledBackup = shuffle(backupQuestions.slice());
 let usedThisSession = [];
 
-///// Game state /////
 let tiles = [];
 let turnCount = 0;
 
 ///// Create 3×3 grid /////
-function createTiles(count=9){
+function createTiles(){
+  const count = 9;
   gameBoard.innerHTML = '';
   tiles = [];
   for(let i=0;i<count;i++){
@@ -83,7 +98,6 @@ function createTiles(count=9){
   tiles.forEach(tile => tile.addEventListener('click', onTileClick));
 }
 
-///// Get next question /////
 function getNextQuestion(){
   if(shuffledOriginal.length > 0){
     const q = shuffledOriginal.shift();
@@ -103,7 +117,6 @@ function showModalWithQuestion(text){
   answerInput.value = '';
   modal.style.display = 'flex';
   modal.setAttribute('aria-hidden','false');
-  answerInput.focus();
 }
 function hideModal(){
   modal.style.display = 'none';
@@ -116,8 +129,18 @@ function confettiBurst(){
 function fireworks(duration = 4500){
   const end = Date.now() + duration;
   (function frame(){
-    confetti({ particleCount: 7, angle: 60, spread: 60, origin: { x: Math.random(), y: Math.random()*0.6 }});
-    confetti({ particleCount: 7, angle: 120, spread: 60, origin: { x: Math.random(), y: Math.random()*0.6 }});
+    confetti({
+      particleCount: 7,
+      angle: 60,
+      spread: 60,
+      origin: { x: Math.random(), y: Math.random() * 0.6 }
+    });
+    confetti({
+      particleCount: 7,
+      angle: 120,
+      spread: 60,
+      origin: { x: Math.random(), y: Math.random() * 0.6 }
+    });
     if(Date.now() < end) requestAnimationFrame(frame);
   })();
 }
@@ -141,20 +164,19 @@ function onTileClick(e){
   setTimeout(()=> tile.classList.remove('pop'), 450);
 
   const q = getNextQuestion();
-  if(q){
-    showModalWithQuestion(`${playerNames[currentPlayer]}: ${q}`);
-  } else {
-    showModalWithQuestion('No more questions left!');
-  }
+  if(q){ showModalWithQuestion(`${playerNames[currentPlayer]}: ${q}`); }
+  else { showModalWithQuestion('No more questions left!'); }
 }
 
-///// Submit answer /////
+///// Answer submit /////
 submitAnswerBtn.addEventListener('click', ()=>{
   hideModal();
   confettiBurst();
   turnCount++;
   currentPlayer = (currentPlayer === 0) ? 1 : 0;
+  playerDisplay.style.display = 'block';
   playerDisplay.innerText = `Current Player: ${playerNames[currentPlayer]}`;
+
   if(shuffledOriginal.length === 0 && shuffledBackup.length === 0){
     setTimeout(showEndGame, 500);
   }
@@ -178,12 +200,13 @@ function performCoinFlip(choice){
         gameBoard.style.display = 'grid';
         playerDisplay.style.display = 'block';
         playerDisplay.innerText = `Current Player: ${playerNames[currentPlayer]}`;
-        createTiles(9);
+        createTiles();
       }, 2000);
     }, 2000);
   }, 100);
 }
 
+///// Start button /////
 startBtn.addEventListener('click', ()=>{
   const n1 = player1Input.value.trim();
   const n2 = player2Input.value.trim();
@@ -192,13 +215,10 @@ startBtn.addEventListener('click', ()=>{
   document.getElementById('name-section').style.display = 'none';
   coinSection.style.display = 'block';
 });
-coinBtns.forEach(btn => {
-  btn.addEventListener('click', ()=> performCoinFlip(btn.dataset.choice));
-});
 
-(function initOnLoad(){
-  const last = readLastSessionQuestions();
-  if(last && last.length>0){
-    console.info(`Excluded ${last.length} questions from last session.`);
-  }
-})();
+coinBtns.forEach(btn => {
+  btn.addEventListener('click', ()=>{
+    const choice = btn.dataset.choice;
+    performCoinFlip(choice);
+  });
+});
