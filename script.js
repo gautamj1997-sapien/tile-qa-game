@@ -184,10 +184,15 @@ function onTileClick(index){
   // add flip & pop classes
   t.tile.classList.add('flipped');
   t.tile.classList.add('pop');
-  // set back face to mirrored initials (two mirrored glyphs for fun)
-  const initial = (playerNames[currentPlayer]||'P').trim()[0].toUpperCase();
-  // place two mirrored initials (one normal, one mirrored) so it looks mirrored across device sizes
-  t.back.innerHTML = `<span class="initial">${initial}</span><span class="initial mirror">${initial}</span>`;
+  // assign color based on current player
+  tile.style.background = (currentPlayer === 0) ? 'var(--p1)' : 'var(--p2)';
+
+  // mirrored initial span
+  const initial = (playerNames[currentPlayer] && playerNames[currentPlayer].trim().length>0)
+                  ? playerNames[currentPlayer].trim()[0].toUpperCase()
+                  : (currentPlayer===0 ? 'P' : 'Q');
+  tile.innerHTML = `<span class="initial">${initial}</span>`;
+
   // remove pop after short time so pop can re-trigger if needed visually
   setTimeout(()=> t.tile.classList.remove('pop'), 450);
 
