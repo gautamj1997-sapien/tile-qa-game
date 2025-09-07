@@ -95,7 +95,7 @@ button{ padding:10px 14px; border-radius:8px; border:0; background:#2b6df6; colo
 /* mirrored initial: works on all devices */
 .initial{
   display:inline-block;
-  transform: scaleX(1); /* mirror the glyph */
+  transform: scaleX(-1); /* mirror the glyph */
   font-weight:900;
   font-size: clamp(20px,5vw,36px);
   line-height:1;
