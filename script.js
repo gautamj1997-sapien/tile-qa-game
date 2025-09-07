@@ -1,4 +1,8 @@
 let currentPlayer = 1;
+let playerNames = ["Player 1", "Player 2"];
+playerNames[0] = prompt("Enter name for Player 1:", "Player 1") || "Player 1";
+playerNames[1] = prompt("Enter name for Player 2:", "Player 2") || "Player 2";
+
 const playerDisplay = document.getElementById('current-player');
 const tiles = document.querySelectorAll('.tile');
 const modal = document.getElementById('question-modal');
@@ -14,7 +18,6 @@ const coin = document.getElementById('coin');
 
 // ----- Questions -----
 const originalQuestions = [
-  // 28 original questions
   "Which Tamil comedy scene always makes you laugh? 🤣",
   "If you could only use three emojis for the rest of the week, what would they would be? 😎🥲🤣",
   "Would you rather have unlimited popcorn 🍿 or unlimited ice cream 🍦 forever? Biryani irundirda atha sollirpinga, theriyum adaa options le vekale🤣",
@@ -81,15 +84,19 @@ coinButtons.forEach(btn => {
       coin.classList.remove('flip');
       const coinResult = Math.random() < 0.5 ? "Heads" : "Tails";
       coinResultDisplay.innerText = `Coin shows: ${coinResult}`;
-      currentPlayer = (choice === coinResult) ? 1 : 2;
+      currentPlayer = (choice === coinResult) ? 0 : 1;
+
+      // Display winner text
+      playerDisplay.style.display = 'block';
+      playerDisplay.innerText = `${playerNames[currentPlayer]} has won the toss!`;
 
       setTimeout(() => {
         coinSection.style.display = 'none';
         gameBoard.style.display = 'grid';
-        playerDisplay.style.display = 'block';
-        playerDisplay.innerText = `Current Player: ${currentPlayer}`;
-      }, 500);
-    }, 2000); // 2 seconds flip
+        playerDisplay.innerText = `Current Player: ${playerNames[currentPlayer]}`;
+      }, 2000);
+
+    }, 2000);
   });
 });
 
@@ -98,14 +105,15 @@ tiles.forEach(tile => {
   tile.addEventListener('click', () => {
     if(tile.classList.contains('flipped')) return;
 
-    tile.style.setProperty('--player-color', currentPlayer === 1 ? '#add8e6' : '#ffb6c1');
+    tile.style.setProperty('--player-color', currentPlayer === 0 ? '#add8e6' : '#ffb6c1');
     tile.classList.add('flipped');
 
     const question = getNextQuestion();
     if(question){
-      questionText.innerText = `Player ${currentPlayer}: ${question}`;
+      questionText.innerText = `${playerNames[currentPlayer]}: ${question}`;
       modal.style.display = 'block';
       tile.dataset.answered = "true";
+      tile.innerText = playerNames[currentPlayer][0]; // show first initial
     } else {
       questionText.innerText = "No more questions left!";
       modal.style.display = 'block';
@@ -117,6 +125,15 @@ tiles.forEach(tile => {
 submitBtn.addEventListener('click', () => {
   modal.style.display = 'none';
   answerInput.value = '';
-  currentPlayer = currentPlayer === 1 ? 2 : 1;
-  playerDisplay.innerText = `Current Player: ${currentPlayer}`;
+
+  // Trigger confetti
+  confetti({
+    particleCount: 100,
+    spread: 70,
+    origin: { y: 0.6 }
+  });
+
+  // Switch player
+  currentPlayer = currentPlayer === 0 ? 1 : 0;
+  playerDisplay.innerText = `Current Player: ${playerNames[currentPlayer]}`;
 });
