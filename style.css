@@ -1,74 +1,114 @@
-:root {
-  --player1: #ffb703;
-  --player2: #8ecae6;
+:root{
+  --bg:#fcfbf8;
+  --card:#fff;
+  --muted:#666;
+  --p1:#8fd3f4;
+  --p2:#ffb3c1;
+  --tile:#f0c987;
 }
 
-body {
-  font-family: Arial, sans-serif;
-  background: #f8f9fa;
-  margin: 0;
-  padding: 20px;
-  text-align: center;
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background:var(--bg);
+  color:#111;
+  display:flex;
+  justify-content:center;
+  padding:18px;
 }
 
-#game-board {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3×3 grid */
-  gap: 12px;
-  justify-content: center;
-  margin-top: 20px;
-  max-width: 360px;
-  margin-left: auto;
-  margin-right: auto;
+.wrap{ width:100%; max-width:760px; }
+
+h1{ margin:8px 0 6px; text-align:center }
+.muted{ color:var(--muted); text-align:center; font-size:0.95rem }
+
+.card{
+  background:var(--card);
+  padding:12px;
+  border-radius:12px;
+  box-shadow:0 6px 18px rgba(12,20,40,0.06);
+  margin:12px 0;
 }
 
-.tile {
-  background: #e0e0e0;
-  width: 100px;
-  height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 32px;
-  border-radius: 10px;
-  transition: transform 0.4s ease;
+label{ display:block; margin:8px 0; font-size:0.95rem }
+input{ width:100%; padding:8px 10px; border-radius:8px; border:1px solid #ddd; margin-top:6px; font-size:1rem }
+
+.row{ display:flex; gap:10px; justify-content:center; margin-top:10px }
+button{ padding:10px 14px; border-radius:8px; border:0; background:#2b6df6; color:white; cursor:pointer; font-weight:600 }
+
+.hidden{ display:none !important }
+
+.coin{ font-size:46px; margin:12px auto; transition: transform 2s ease-in-out; }
+
+/* BOARD: always 3 columns, always 9 tiles */
+.board{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(80px, 120px));
+  grid-auto-rows: minmax(80px, 120px);
+  gap:12px;
+  justify-content:center;
+  margin-top:12px;
 }
 
-.tile.flipped {
-  color: white;
+/* tile with 3D flip & pop animation */
+.tile{
+  width:100%;
+  height:100%;
+  border-radius:12px;
+  perspective:700px;
+  cursor:pointer;
+  position:relative;
+  user-select:none;
+  -webkit-tap-highlight-color: transparent;
+}
+.tile-inner{
+  position:absolute; inset:0;
+  transition: transform 0.55s cubic-bezier(.2,.9,.2,1);
+  transform-style: preserve-3d;
+  border-radius:12px;
+  box-shadow: 0 6px 14px rgba(12,20,40,0.06);
+}
+.tile.pop .tile-inner{ transform: scale(1.06); }
+.tile.flipped .tile-inner{ transform: rotateY(180deg) scale(1.02); }
+
+.tile-face{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  border-radius:12px; backface-visibility:hidden; font-weight:800; font-size: clamp(20px, 4vw, 32px);
+}
+.tile-front{
+  background: #e6e6e6;
+  color:#333;
+}
+.tile-back{
+  transform: rotateY(180deg);
+  background: var(--tile);
+  color:#fff;
+  display:flex;
+  gap:6px;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
 }
 
-.tile.pop {
-  transform: scale(1.2);
+/* mirrored initial: works on all devices */
+.initial{
+  display:inline-block;
+  transform: scaleX(-1); /* mirror the glyph */
+  font-weight:900;
+  font-size: clamp(20px,5vw,36px);
+  line-height:1;
 }
 
-.initial {
-  transform: scaleX(-1); /* mirror effect */
-  font-weight: bold;
-  font-size: 36px;
-}
+/* Modal */
+.modal{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.5); }
+.modal-card{ background:var(--card); padding:16px; border-radius:12px; width:90%; max-width:420px; }
 
-.modal {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.6);
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
+/* End screen */
+#fireworks{ width:100%; height:240px; display:block }
 
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  max-width: 90%;
-  width: 400px;
-  text-align: left;
-}
-
-#coin-anim {
-  font-size: 48px;
-  margin: 20px;
-  transition: transform 2s;
+/* responsive tweak - keep 3x3 but smaller on narrow screens */
+@media (max-width:420px){
+  .board{ grid-template-columns: repeat(3, minmax(64px, 100px)); grid-auto-rows: minmax(64px,100px); gap:8px }
 }
