@@ -8,30 +8,13 @@
 }
 
 *{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  background:var(--bg);
-  color:#111;
-  display:flex;
-  justify-content:center;
-  padding:18px;
-}
+html,body{height:100%; margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:var(--bg); color:#111; display:flex; justify-content:center; padding:18px;}
 
 .wrap{ width:100%; max-width:760px; }
-
 h1{ margin:8px 0 6px; text-align:center }
 .muted{ color:var(--muted); text-align:center; font-size:0.95rem }
 
-.card{
-  background:var(--card);
-  padding:12px;
-  border-radius:12px;
-  box-shadow:0 6px 18px rgba(12,20,40,0.06);
-  margin:12px 0;
-}
-
+.card{ background:var(--card); padding:12px; border-radius:12px; box-shadow:0 6px 18px rgba(12,20,40,0.06); margin:12px 0; }
 label{ display:block; margin:8px 0; font-size:0.95rem }
 input{ width:100%; padding:8px 10px; border-radius:8px; border:1px solid #ddd; margin-top:6px; font-size:1rem }
 
@@ -42,73 +25,31 @@ button{ padding:10px 14px; border-radius:8px; border:0; background:#2b6df6; colo
 
 .coin{ font-size:46px; margin:12px auto; transition: transform 2s ease-in-out; }
 
-/* BOARD: always 3 columns, always 9 tiles */
-.board{
-  display:grid;
-  grid-template-columns: repeat(3, minmax(80px, 120px));
-  grid-auto-rows: minmax(80px, 120px);
-  gap:12px;
-  justify-content:center;
-  margin-top:12px;
-}
+/* BOARD: always 3 columns */
+.board{ display:grid; grid-template-columns: repeat(3, minmax(80px, 120px)); grid-auto-rows: minmax(80px, 120px); gap:12px; justify-content:center; margin-top:12px; }
 
 /* tile with 3D flip & pop animation */
-.tile{
-  width:100%;
-  height:100%;
-  border-radius:12px;
-  perspective:700px;
-  cursor:pointer;
-  position:relative;
-  user-select:none;
-  -webkit-tap-highlight-color: transparent;
-}
-.tile-inner{
-  position:absolute; inset:0;
-  transition: transform 0.55s cubic-bezier(.2,.9,.2,1);
-  transform-style: preserve-3d;
-  border-radius:12px;
-  box-shadow: 0 6px 14px rgba(12,20,40,0.06);
-}
+.tile{ width:100%; height:100%; border-radius:12px; perspective:700px; cursor:pointer; position:relative; user-select:none; -webkit-tap-highlight-color: transparent; }
+.tile-inner{ position:absolute; inset:0; transition: transform 0.55s cubic-bezier(.2,.9,.2,1); transform-style: preserve-3d; border-radius:12px; box-shadow: 0 6px 14px rgba(12,20,40,0.06); }
 .tile.pop .tile-inner{ transform: scale(1.06); }
 .tile.flipped .tile-inner{ transform: rotateY(180deg) scale(1.02); }
 
-.tile-face{
-  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-  border-radius:12px; backface-visibility:hidden; font-weight:800; font-size: clamp(20px, 4vw, 32px);
-}
-.tile-front{
-  background: #e6e6e6;
-  color:#333;
-}
-.tile-back{
-  transform: rotateY(180deg);
-  background: var(--tile);
-  color:#fff;
-  display:flex;
-  gap:6px;
-  align-items:center;
-  justify-content:center;
-  font-weight:900;
-}
+.tile-face{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; border-radius:12px; backface-visibility:hidden; font-weight:800; font-size: clamp(20px, 4vw, 32px);}
+.tile-front{ background: #e6e6e6; color:#333; }
+.tile-back{ transform: rotateY(180deg); background: var(--tile); color:#fff; display:flex; gap:6px; align-items:center; justify-content:center; font-weight:900; }
 
 /* mirrored initial: works on all devices */
-.initial{
-  display:inline-block;
-  transform: scaleX(-1); /* mirror the glyph */
-  font-weight:900;
-  font-size: clamp(20px,5vw,36px);
-  line-height:1;
-}
+.initial{ display:inline-block; transform: scaleX(-1); font-weight:900; font-size: clamp(20px,5vw,36px); line-height:1; }
 
 /* Modal */
-.modal{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.5); }
+.modal{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.5);}
 .modal-card{ background:var(--card); padding:16px; border-radius:12px; width:90%; max-width:420px; }
 
 /* End screen */
 #fireworks{ width:100%; height:240px; display:block }
 
-/* responsive tweak - keep 3x3 but smaller on narrow screens */
+/* responsive tweak */
 @media (max-width:420px){
   .board{ grid-template-columns: repeat(3, minmax(64px, 100px)); grid-auto-rows: minmax(64px,100px); gap:8px }
+  button{ font-size:0.9rem; padding:8px 10px }
 }
