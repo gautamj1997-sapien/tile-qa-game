@@ -1,8 +1,16 @@
 body { font-family: Arial, sans-serif; text-align: center; background: #f5f5f5; }
 .grid { display: grid; grid-template-columns: repeat(4, 80px); gap: 10px; justify-content: center; margin-top: 20px; }
-.tile { width: 80px; height: 80px; background: #ddd; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 24px; transition: transform 0.6s; }
-.tile.flipped { transform: rotateY(180deg); }
-.tile span { display: inline-block; transform: rotateY(180deg); font-weight: bold; font-size: 18px; }
+.tile { width: 80px; height: 80px; background: #ddd; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 24px; perspective: 600px; transition: transform 0.3s; }
+.tile.flipped { transform: rotateY(180deg) scale(1.1); }
+.tile span { display: inline-block; transform: rotateY(180deg); font-weight: bold; font-size: 20px; transition: transform 0.3s; }
+.tile.flipped.animate { animation: bounceFlip 0.5s; }
+
+@keyframes bounceFlip {
+  0% { transform: rotateY(0deg) scale(1); }
+  50% { transform: rotateY(180deg) scale(1.2); }
+  100% { transform: rotateY(180deg) scale(1.1); }
+}
+
 .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
 .modal-content { background:#fff; padding:20px; border-radius:10px; width:300px; margin:auto; }
 #spin-animation { font-size:50px; margin:10px auto; transition: transform 3s ease-in-out; }
