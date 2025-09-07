@@ -1,53 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tile Q&A Game</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fun Q&A Game</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Tile Q&A Game</h1>
+  <!-- Player Names Input -->
+  <div id="name-section">
+    <input type="text" id="player1-name" placeholder="Player 1 Name">
+    <input type="text" id="player2-name" placeholder="Player 2 Name">
+    <button id="start-game">Start Game</button>
+  </div>
 
-  <div id="coin-flip-section">
-    <p>Pick Heads or Tails:</p>
-    <button class="coin-choice" data-choice="Heads">Heads</button>
-    <button class="coin-choice" data-choice="Tails">Tails</button>
-    <div id="coin" class="coin"></div>
+  <!-- Coin Toss Section -->
+  <div id="coin-section">
+    <p>Pick Heads or Tails to decide who goes first:</p>
+    <button class="coin-btn" data-choice="Heads">Heads</button>
+    <button class="coin-btn" data-choice="Tails">Tails</button>
     <p id="coin-result"></p>
   </div>
 
-  <div id="current-player" style="display:none;"></div>
+  <!-- Current Player Display -->
+  <h2 id="player-display"></h2>
 
-  <div id="game-board" style="display:none;">
-    <!-- 4x4 grid -->
-    <div class="tile" data-id="0"></div>
-    <div class="tile" data-id="1"></div>
-    <div class="tile" data-id="2"></div>
-    <div class="tile" data-id="3"></div>
-    <div class="tile" data-id="4"></div>
-    <div class="tile" data-id="5"></div>
-    <div class="tile" data-id="6"></div>
-    <div class="tile" data-id="7"></div>
-    <div class="tile" data-id="8"></div>
-    <div class="tile" data-id="9"></div>
-    <div class="tile" data-id="10"></div>
-    <div class="tile" data-id="11"></div>
-    <div class="tile" data-id="12"></div>
-    <div class="tile" data-id="13"></div>
-    <div class="tile" data-id="14"></div>
-    <div class="tile" data-id="15"></div>
-  </div>
+  <!-- Game Board -->
+  <div id="game-board" class="grid"></div>
 
-  <div id="question-modal" class="modal">
+  <!-- Question Modal -->
+  <div id="modal" class="modal">
     <div class="modal-content">
       <p id="question-text"></p>
-      <input type="text" id="answer-input" placeholder="Type your answer here">
-      <button id="submit-answer">Submit</button>
+      <input type="text" id="answer-input" placeholder="Your answer">
+      <button id="submit-btn">Submit</button>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- Truth or Dare Modal -->
+  <div id="spin-modal" class="modal">
+    <div class="modal-content">
+      <p id="spin-text"></p>
+      <div id="spin-animation">🎡</div>
+      <button id="continue-game">Continue</button>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
