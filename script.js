@@ -65,10 +65,9 @@ const backupQuestions = [
   "Which emoji best represents your flirting style? 😎🥰🤭"
 ];
 
-function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
+function shuffle(array){ return array.sort(() => Math.random() - 0.5); }
 let shuffledOriginal = shuffle(originalQuestions.slice());
 let shuffledBackup = shuffle(backupQuestions.slice());
-
 function getNextQuestion(){
   if(shuffledOriginal.length > 0) return shuffledOriginal.shift();
   if(shuffledBackup.length > 0) return shuffledBackup.shift();
@@ -122,21 +121,38 @@ tiles.forEach(tile => {
   tile.addEventListener('click', () => {
     if(tile.classList.contains('flipped')) return;
 
-    // If it's a spin turn, ignore tile click
-    if(turnCounter !== 0 && turnCounter % 4 === 0) return;
+    // Truth or Dare spin every 4 turns
+    if(turnCounter !== 0 && turnCounter % 4 === 0){
+      spinModal.style.display = 'block';
+      spinText.innerText = `${playerNames[currentPlayer]}, it's your turn to spin for Truth or Dare! 🎡`;
+      spinAnimation.style.transform = 'rotate(0deg)';
 
-    // Normal tile flip
-    tile.classList.add('flipped');
-    tile.style.setProperty('--player-color', currentPlayer === 0 ? '#add8e6' : '#ffb6c1');
+      setTimeout(() => {
+        let randomDeg = 1080 + Math.random()*360;
+        spinAnimation.style.transition = 'transform 3s ease-in-out';
+        spinAnimation.style.transform = `rotate(${randomDeg}deg)`;
+      }, 100);
+
+      setTimeout(() => {
+        const outcome = Math.random() < 0.5 ? "Truth" : "Dare";
+        spinText.innerText = `${playerNames[currentPlayer]}, your spin result: ${outcome}!\nPlayer 2 can now ask a question or give a dare.`;
+        continueBtn.style.display = 'inline-block';
+      }, 3100);
+
+      return; // Exit click handler; tile won't flip this turn
+    }
+
+    // Normal tile flip with bounce
+    tile.classList.add('flipped', 'animate');
+    tile.style.background = currentPlayer === 0 ? '#add8e6' : '#ffb6c1';
     tile.innerHTML = `<span>${playerNames[currentPlayer][0]}</span>`;
+    setTimeout(() => tile.classList.remove('animate'), 500);
 
     const question = getNextQuestion();
     if(question){
       questionText.innerText = `${playerNames[currentPlayer]}: ${question}`;
       modal.style.display = 'block';
     }
-
-    turnCounter++;
   });
 });
 
@@ -147,10 +163,10 @@ submitBtn.addEventListener('click', () => {
 
   confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 
+  turnCounter++;
   currentPlayer = currentPlayer === 0 ? 1 : 0;
   playerDisplay.innerText = `Current Player: ${playerNames[currentPlayer]}`;
 
-  // Automatically show end message if all questions are answered
   if(shuffledOriginal.length === 0 && shuffledBackup.length === 0){
     setTimeout(showEndGameMessage, 500);
   }
@@ -166,17 +182,16 @@ continueBtn.addEventListener('click', () => {
 
 // --- End Game Cheeky Message ---
 function showEndGameMessage() {
-  playerDisplay.innerText = "You are getting dangerously close! ❤️✨";
+  playerDisplay.innerText = "You are getting dangerously close! ✨";
   playerDisplay.style.transition = "transform 0.5s";
   playerDisplay.style.transform = "scale(1.3)";
   setTimeout(() => { playerDisplay.style.transform = "scale(1)"; }, 500);
 
   let duration = 5000;
   let end = Date.now() + duration;
-
   (function frame() {
-    confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: Math.random(), y: Math.random()*0.6 } });
-    confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: Math.random(), y: Math.random()*0.6 } });
+    confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: Math.random(), y: Math.random()-0.2 } });
+    confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: Math.random(), y: Math.random()-0.2 } });
     if(Date.now() < end) requestAnimationFrame(frame);
   }());
 }
