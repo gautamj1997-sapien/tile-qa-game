@@ -6,6 +6,11 @@ const questionText = document.getElementById('question-text');
 const answerInput = document.getElementById('answer-input');
 const submitBtn = document.getElementById('submit-answer');
 
+const coinButtons = document.querySelectorAll('.coin-choice');
+const coinResultDisplay = document.getElementById('coin-result');
+const coinSection = document.getElementById('coin-flip-section');
+const gameBoard = document.getElementById('game-board');
+
 const questions = [
   "Which Tamil comedy scene always makes you laugh? 🤣",
   "If you could only use three emojis for the rest of the week, what would they would be? 😎🥲🤣",
@@ -37,16 +42,37 @@ const questions = [
   "If the emotions you're feeling right now had a color, what color would yours be right now?"
 ];
 
-// Shuffle questions for randomness
+// Shuffle questions
 function shuffle(array) {
   return array.sort(() => Math.random() - 0.5);
 }
 let shuffledQuestions = shuffle(questions.slice());
 
+// ----- Coin Flip Logic -----
+coinButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const choice = btn.dataset.choice;
+    const coinResult = Math.random() < 0.5 ? "Heads" : "Tails";
+    coinResultDisplay.innerText = `Coin shows: ${coinResult}`;
+    currentPlayer = (choice === coinResult) ? 1 : 2;
+
+    setTimeout(() => {
+      coinSection.style.display = 'none';
+      gameBoard.style.display = 'grid';
+      playerDisplay.style.display = 'block';
+      playerDisplay.innerText = `Current Player: ${currentPlayer}`;
+    }, 1000);
+  });
+});
+
+// ----- Tile Flip Logic -----
 tiles.forEach(tile => {
   tile.addEventListener('click', () => {
     if(tile.classList.contains('flipped')) return;
+
+    tile.style.setProperty('--player-color', currentPlayer === 1 ? '#add8e6' : '#ffb6c1');
     tile.classList.add('flipped');
+
     const question = shuffledQuestions.shift();
     if(question){
       questionText.innerText = `Player ${currentPlayer}: ${question}`;
@@ -56,10 +82,10 @@ tiles.forEach(tile => {
   });
 });
 
+// ----- Submit Answer Logic -----
 submitBtn.addEventListener('click', () => {
   modal.style.display = 'none';
   answerInput.value = '';
-  // Switch player after each question
   currentPlayer = currentPlayer === 1 ? 2 : 1;
   playerDisplay.innerText = `Current Player: ${currentPlayer}`;
 });
