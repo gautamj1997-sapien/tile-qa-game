@@ -1,84 +1,114 @@
-:root{
-  --player1:#d4efff;
-  --player2:#ffd9e6;
-  --card-bg: #ffffff;
-  --muted: #666;
+:root {
+  --player1: #4a90e2;
+  --player2: #e94e77;
 }
 
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Inter,system-ui,Arial,Helvetica,sans-serif;
-  background:#f3f7fb;
-  color:#111;
-  display:flex;
-  justify-content:center;
-  padding:30px 16px;
-}
-.container{width:100%;max-width:760px}
-
-h1{margin:0 0 12px}
-.card{
-  background:var(--card-bg);
-  padding:14px;
-  border-radius:10px;
-  box-shadow:0 4px 14px rgba(20,30,50,0.06);
-  margin-bottom:14px;
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #fafafa;
+  margin: 0;
+  padding: 20px;
 }
 
-label{display:block;margin:6px 0}
-input[type="text"],input{
-  padding:8px 10px;border-radius:6px;border:1px solid #ddd;width:100%;
-  margin-top:6px;font-size:14px;
+#name-section input {
+  margin: 5px;
+  padding: 8px;
 }
 
-button{
-  padding:8px 12px;border-radius:8px;background:#2b6df6;color:white;border:0;cursor:pointer;
-}
-button.secondary{background:#6b6b6b}
-
-.muted{color:var(--muted);font-size:14px}
-
-/* coin */
-.coin-buttons{display:flex;gap:10px;justify-content:center;margin-bottom:10px}
-.coin{font-size:48px;margin:8px auto;opacity:0;transition:opacity .2s, transform 2s ease-in-out;}
-
-/* player display */
-#player-display{margin-top:6px;margin-bottom:12px}
-
-/* grid */
-.grid{display:grid;grid-template-columns:repeat(4,86px);gap:12px;justify-content:center}
-.tile{
-  width:86px;height:86px;background:#e6eef7;border-radius:12px;display:flex;align-items:center;justify-content:center;
-  cursor:pointer; font-weight:700; font-size:20px; color:#123;
-  perspective:600px; transform-style:preserve-3d; transition:transform .45s;
-  box-shadow: 0 4px 8px rgba(12,20,40,0.05);
-}
-.tile.flipped{ transform: rotateY(180deg) scale(1.04); }
-.tile.pop{ animation: popEffect .45s cubic-bezier(.2,.8,.2,1); }
-
-@keyframes popEffect {
-  0%{ transform: scale(1) }
-  50%{ transform: scale(1.25) }
-  100%{ transform: scale(1.05) }
+button {
+  margin: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
 }
 
-/* mirrored initial inside tile */
-.tile .initial {
-  display:inline-block;
-  transform: rotateY(180deg); /* mirrored text */
-  font-size:22px; font-weight:800;
+#coin-anim {
+  font-size: 3rem;
+  margin: 20px;
+  transition: transform 2s ease;
+  display: inline-block;
 }
 
-/* modal */
-.modal{ display:none; position:fixed; left:0;top:0;width:100%;height:100%; background: rgba(0,0,0,0.45);
-  align-items:center;justify-content:center;padding:20px; z-index:40;
+#game-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3×3 grid */
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }
-.modal-content{background:white;padding:18px;border-radius:10px;max-width:420px;width:100%}
-.modal-actions{display:flex;justify-content:flex-end;margin-top:8px}
 
-/* responsive */
-@media (max-width:460px){
-  .grid{grid-template-columns:repeat(3,86px)}
-  .tile{width:86px;height:86px}
+.tile {
+  width: 100px;
+  height: 100px;
+  background: #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 10px;
+  font-size: 1.5rem;
+  transition: transform 0.4s;
+}
+
+.tile.flipped {
+  background: #666;
+  color: #fff;
+  transform: rotateY(180deg) scale(1.05);
+}
+
+.tile.pop {
+  animation: pop 0.4s ease;
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.initial {
+  transform: scaleX(-1); /* mirror effect */
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: white;
+}
+
+#modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+#modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 400px;
+}
+
+#answer-input {
+  width: 90%;
+  height: 80px;
+  margin-top: 10px;
+}
+
+@media (max-width: 600px) {
+  #game-board {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-width: 300px;
+  }
+  .tile {
+    width: 80px;
+    height: 80px;
+    font-size: 1.2rem;
+  }
 }
