@@ -184,15 +184,27 @@ function onTileClick(index){
   // add flip & pop classes
   t.tile.classList.add('flipped');
   t.tile.classList.add('pop');
-  // assign color based on current player
-  tile.style.background = (currentPlayer === 0) ? 'var(--p1)' : 'var(--p2)';
 
-  // mirrored initial span
+
+
+
+ 
+    // mirrored initial span
   const initial = (playerNames[currentPlayer] && playerNames[currentPlayer].trim().length>0)
                   ? playerNames[currentPlayer].trim()[0].toUpperCase()
                   : (currentPlayer===0 ? 'P' : 'Q');
   tile.innerHTML = `<span class="initial">${initial}</span>`;
 
+
+
+
+ 
+ 
+
+
+ 
+// assign color based on current player
+  tile.style.background = (currentPlayer === 0) ? 'var(--p1)' : 'var(--p2)';
   // remove pop after short time so pop can re-trigger if needed visually
   setTimeout(()=> t.tile.classList.remove('pop'), 450);
 
