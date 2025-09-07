@@ -99,7 +99,7 @@ coinButtons.forEach(btn => {
       coinSection.style.display = 'none';
       gameBoard.style.display = 'grid';
       playerDisplay.innerText = `Current Player: ${playerNames[currentPlayer]}`;
-      createTiles(16); // Example: 16 tiles
+      createTiles(16);
     }, 2000);
   });
 });
@@ -122,40 +122,21 @@ tiles.forEach(tile => {
   tile.addEventListener('click', () => {
     if(tile.classList.contains('flipped')) return;
 
-    turnCounter++;
+    // If it's a spin turn, ignore tile click
+    if(turnCounter !== 0 && turnCounter % 4 === 0) return;
 
-    // --- Truth or Dare Spin every 4 turns ---
-    if(turnCounter % 4 === 0){
-      spinModal.style.display = 'block';
-      spinText.innerText = `${playerNames[currentPlayer]}, it's your turn to spin for Truth or Dare! 🎡`;
-
-      spinAnimation.style.transform = 'rotate(0deg)';
-      setTimeout(() => {
-        let randomDeg = 1080 + Math.random()*360;
-        spinAnimation.style.transition = 'transform 3s ease-in-out';
-        spinAnimation.style.transform = `rotate(${randomDeg}deg)`;
-      }, 100);
-
-      setTimeout(() => {
-        const outcome = Math.random() < 0.5 ? "Truth" : "Dare";
-        spinText.innerText = `${playerNames[currentPlayer]}, your spin result: ${outcome}!\nPlayer 2 can now ask a question or give a dare.`;
-        continueBtn.style.display = 'inline-block';
-      }, 3100);
-
-      return;
-    }
-
-    // --- Normal Tile Logic ---
-    tile.style.setProperty('--player-color', currentPlayer === 0 ? '#add8e6' : '#ffb6c1');
+    // Normal tile flip
     tile.classList.add('flipped');
+    tile.style.setProperty('--player-color', currentPlayer === 0 ? '#add8e6' : '#ffb6c1');
+    tile.innerHTML = `<span>${playerNames[currentPlayer][0]}</span>`;
 
     const question = getNextQuestion();
     if(question){
       questionText.innerText = `${playerNames[currentPlayer]}: ${question}`;
       modal.style.display = 'block';
-      tile.dataset.answered = "true";
-      tile.innerHTML = `<span>${playerNames[currentPlayer][0]}</span>`;
     }
+
+    turnCounter++;
   });
 });
 
@@ -168,6 +149,11 @@ submitBtn.addEventListener('click', () => {
 
   currentPlayer = currentPlayer === 0 ? 1 : 0;
   playerDisplay.innerText = `Current Player: ${playerNames[currentPlayer]}`;
+
+  // Automatically show end message if all questions are answered
+  if(shuffledOriginal.length === 0 && shuffledBackup.length === 0){
+    setTimeout(showEndGameMessage, 500);
+  }
 });
 
 // --- Continue after Spin ---
